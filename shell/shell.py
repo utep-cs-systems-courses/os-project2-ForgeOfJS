@@ -5,16 +5,11 @@ PS1 = "$"
 dir = os.getcwd()
 
 def awaitCommand():
+	os.chdir(dir)
 	print(dir + PS1, end = " ")
 	command = input()
 	realCommand = command.split(" ")
 	return realCommand
-
-if len(sys.argv) > 1:
-	bashCommand = ""
-	for arg in sys.argv[1:]:
-		bashCommand += arg
-	os.system(bashCommand)
 
 while True:
 	command = awaitCommand()
@@ -41,3 +36,9 @@ while True:
 					print(f"File {command[0][2:]} not found.")
 		else:
 			os.wait()
+	else:
+		bashCommand = ""
+		for arg in command[:-1]:
+			bashCommand += arg + " "
+		bashCommand += command[-1]
+		os.system(bashCommand)
