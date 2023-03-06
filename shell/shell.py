@@ -1,25 +1,43 @@
 #! /usr/bin/env python3
-import os, sys, re
+import os, sys, re, time
 
-def IOExample():
-	output = os.open("shell-output.txt", os.O_CREAT | os.O_WRONLY)
-	input = os.open("input.txt", os.O_RDONLY)
+PS1 = "$"
+dir = os.getcwd()
 
-	while 1:
-		read = os.read(input, 10000)
-		if len(read) == 0: break
-		lines = re.split(b"\n", read)
-		for line in lines:
-			strPrint = f"{line.decode()}\n"
-			os.write(output, strPrint.encode())
+def awaitCommand():
+	print(dir + PS1, end = " ")
+	command = input()
+	realCommand = command.split(" ")
+	return realCommand
 
-def forkExample():
-	pid = os.getpid()
-	rc = os.fork()
+if len(sys.argv) > 1:
+	bashCommand = ""
+	for arg in sys.argv[1:]:
+		bashCommand += arg
+	os.system(bashCommand)
 
-	if rc == 0:
-		print("Child id = %d" % (os.getpid()))
-	else:
-		print("Parent id = %d" % pid)
-
-forkExample()
+while True:
+	command = awaitCommand()
+	if command[0] == "exit": sys.exit("Shell Exit.")
+	if command[0] == "cd":
+		if len(command) == 2:
+			if command[1] == "..":
+				dir = os.path.abspath(os.path.join(dir, os.pardir))
+			else:
+				if  os.path.isdir(dir+"/"+command[1]): dir += "/"+command[1]
+				else: print(f"'/{command[1]}' is not a valid path")
+		if len(command) == 1:
+			dir = "/"+dir.split("/")[1]
+	elif command[0][0:2] == "./":
+		print(f"{command} is to be executed")
+		rc = os.fork()
+		if rc < 0:
+			sys.exit(f"Fork failed, returning '{rc}'")
+		elif rc == 0:
+			for directory in re.split(":", dir):
+				try:
+					os.execve(dir+"/"+command[0][2:], command[1:], os.environ)
+				except FileNotFoundError:
+					print(f"File {command[0][2:]} not found.")
+		else:
+			os.wait()

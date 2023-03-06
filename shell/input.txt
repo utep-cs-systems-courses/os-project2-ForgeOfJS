@@ -1,5 +1,0 @@
-This is the 
-input 
-of this file
-Hopefully it works.
-!
