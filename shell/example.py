@@ -1,2 +1,3 @@
 #! /usr/bin/env python3
-print("!")
+import sys
+print(sys.argv[1:])

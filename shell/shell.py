@@ -23,22 +23,23 @@ while True:
 				else: print(f"'/{command[1]}' is not a valid path")
 		if len(command) == 1:
 			dir = "/"+dir.split("/")[1]
-	elif command[0][0:2] == "./":
-		print(f"{command} is to be executed")
+	else:
 		rc = os.fork()
 		if rc < 0:
 			sys.exit(f"Fork failed, returning '{rc}'")
 		elif rc == 0:
-			for directory in re.split(":", dir):
-				try:
-					os.execve(dir+"/"+command[0][2:], command[1:], os.environ)
-				except FileNotFoundError:
-					print(f"File {command[0][2:]} not found.")
+			if command[0][0:2] == "./":
+				for directory in re.split(":", dir):
+					try:
+						if len(command) == 1: os.execve(dir+"/"+command[0][2:], [dir+"/"+command[0][2:]], os.environ)
+						else: os.execve(dir+"/"+command[0][2:], command[1:], os.environ)
+					except FileNotFoundError:
+						print(f"File {command[0][2:]} not found.")
+			else:
+				bashCommand = ""
+				for arg in command[:-1]:
+					bashCommand += arg + " "
+				bashCommand += command[-1]
+				os.system(bashCommand)
 		else:
 			os.wait()
-	else:
-		bashCommand = ""
-		for arg in command[:-1]:
-			bashCommand += arg + " "
-		bashCommand += command[-1]
-		os.system(bashCommand)
