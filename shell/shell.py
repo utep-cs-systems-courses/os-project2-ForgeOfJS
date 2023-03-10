@@ -31,8 +31,8 @@ while True:
 			if command[0][0:2] == "./":
 				for directory in re.split(":", dir):
 					try:
-						if len(command) == 1: os.execve(dir+"/"+command[0][2:], [dir+"/"+command[0][2:]], os.environ)
-						else: os.execve(dir+"/"+command[0][2:], command[1:], os.environ)
+						if len(command) == 1: os.execve(dir+"/"+command[0][1:], [dir+"/"+command[0][2:]], os.environ)
+						else: os.execve(dir+"/"+command[0][2:], command[0:], os.environ)
 					except FileNotFoundError:
 						print(f"File {command[0][2:]} not found.")
 			else:
